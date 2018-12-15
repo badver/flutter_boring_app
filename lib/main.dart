@@ -59,6 +59,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
       ),
       bottomNavigationBar: BottomNavigationBar(
+          currentIndex: 0,
           items: [
             BottomNavigationBarItem(
                 title: Text('Top Stories'), icon: Icon(Icons.arrow_drop_up)),
@@ -67,9 +68,9 @@ class _MyHomePageState extends State<MyHomePage> {
           ],
           onTap: (index) {
             if (index == 0) {
-              print('Top clicked');
+              widget.bloc.storiesType.add(StoriesType.topStories);
             } else {
-              print('New clocked');
+              widget.bloc.storiesType.add(StoriesType.newStories);
             }
           }),
     );
