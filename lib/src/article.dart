@@ -9,12 +9,17 @@ abstract class Article implements Built<Article, ArticleBuilder> {
 
   int get id;
 
+  /// true if the item is deleted.
+  ///
+  ///
   @nullable
-  bool get deleted; // true if the item is deleted.
+  bool get deleted;
 
+  /// The type of item.
+  ///
+  /// One of: "job", "story", "comment", "poll", or "pollopt".
   @nullable
-  String
-      get type; //	The type of item. One of "job", "story", "comment", "poll", or "pollopt".
+  String get type;
 
   @nullable
   String get by; //	The username of the item's author.

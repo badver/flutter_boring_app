@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_boring_app/src/json_parsing.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:http/http.dart' as http;
 
 import 'src/article.dart';
 
@@ -31,6 +33,30 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   List<Article> _articles = []; //articles;
 
+  List<int> _ids = [
+    18672951,
+    18682580,
+    18678314,
+    18684666,
+    18674188,
+    18665048,
+    18681772,
+    18667747,
+    18681447,
+    18674885,
+    18667750,
+    18685296
+  ];
+
+  Future<Article> _getArticle(int id) async {
+    final url = 'https://hacker-news.firebaseio.com/v0/item/$id.json';
+    final res = await http.get(url);
+    if (res.statusCode == 200) {
+      return parseArticle(res.body);
+    }
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -45,9 +71,25 @@ class _MyHomePageState extends State<MyHomePage> {
           });
           return;
         },
-        child: ListView.builder(
-            itemCount: _articles.length,
-            itemBuilder: (context, index) => _buildItem(_articles[index])),
+        child: ListView(
+          children: _ids
+              .map(
+                (id) => FutureBuilder<Article>(
+                      future: _getArticle(id),
+                      builder: (BuildContext context,
+                          AsyncSnapshot<Article> snapshot) {
+                        if (snapshot.connectionState == ConnectionState.done) {
+                          if (snapshot.hasData) {
+                            return _buildItem(snapshot.data);
+                          }
+                        } else {
+                          return CircularProgressIndicator();
+                        }
+                      },
+                    ),
+              )
+              .toList(),
+        ),
       ),
     );
   }
