@@ -1,57 +1,59 @@
-class Article {
-  final String title;
-  final String text;
-  final String url;
-  final String by;
-  final String type;
-  final int time;
-  final int id;
-  final int score;
-  final int commentsCount;
+import 'package:built_collection/built_collection.dart';
+import 'package:built_value/built_value.dart';
+import 'package:built_value/serializer.dart';
 
-  const Article(
-      {this.id,
-      this.title,
-      this.text,
-      this.url,
-      this.by,
-      this.time,
-      this.score,
-      this.type,
-      this.commentsCount});
+part 'article.g.dart';
 
-  factory Article.fromJson(Map<String, dynamic> json) {
-    if (json == null) return null;
+abstract class Article implements Built<Article, ArticleBuilder> {
+  static Serializer<Article> get serializer => _$articleSerializer;
 
-    return Article(
-        id: json['id'],
-        title: json['title'],
-        text: json['text'],
-        url: json['url'],
-        by: json['by'],
-        time: json['time'],
-        score: json['score'],
-        type: json['type'],
-        commentsCount: json['commentsCount']);
-  }
+  int get id;
+
+  @nullable
+  bool get deleted; // true if the item is deleted.
+
+  @nullable
+  String
+      get type; //	The type of item. One of "job", "story", "comment", "poll", or "pollopt".
+
+  @nullable
+  String get by; //	The username of the item's author.
+
+  @nullable
+  int get time; // Creation date of the item, in Unix Time.
+
+  @nullable
+  String get text; //	The comment, story or poll text. HTML.
+
+  @nullable
+  bool get dead; //	true if the item is dead.
+
+  @nullable
+  int get parent; // The comment's parent: either another comment or the relevant story.
+
+  @nullable
+  int get poll; //	The pollopt's associated poll.
+
+  @nullable
+  BuiltList<int>
+      get kids; //	The ids of the item's comments, in ranked display order.
+
+  @nullable
+  String get url; //	The URL of the story.
+
+  @nullable
+  int get score; //	The story's score, or the votes for a pollopt.
+
+  @nullable
+  String get title; //	The title of the story, poll or job.
+
+  @nullable
+  BuiltList<int> get parts; //	A list of related pollopts, in display order.
+
+  @nullable
+  int get descendants; //	In the case of stories or polls, the total comment count.
+
+  Article._();
+
+  factory Article([updates(ArticleBuilder b)]) = _$Article;
 }
-
-final articles = [
-  Article(
-      id: 123,
-      by: "dhouston",
-      score: 111,
-      time: 1175714200,
-      title: "My YC app: Dropbox - Throw away your USB drive",
-      type: "story",
-      url: "https://www.getdropbox.com/u/2/screencast.html"),
-  Article(
-      by: "norvig",
-      id: 2921983,
-      title: "shucks, guys",
-      text: """
-      Aw shucks, guys ... you make me blush with your compliments.<p>Tell you what, Ill make a deal: I'll keep writing if you keep reading. K?
-      """,
-      time: 1314211127,
-      type: "comment")
-];

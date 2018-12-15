@@ -1,5 +1,8 @@
-import 'package:flutter_boring_app/src/article.dart';
 import 'dart:convert' as json;
+
+import 'package:flutter_boring_app/src/article.dart';
+
+import 'serializers.dart';
 
 List<int> parseTopStories(String jsonStr) {
   final parsed = json.jsonDecode(jsonStr);
@@ -8,5 +11,6 @@ List<int> parseTopStories(String jsonStr) {
 
 Article parseArticle(String jsonStr) {
   final parsed = json.jsonDecode(jsonStr);
-  return Article.fromJson(parsed);
+  Article article = serializers.deserializeWith(Article.serializer, parsed);
+  return article; // Article.fromJson(parsed);
 }
