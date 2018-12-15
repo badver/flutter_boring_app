@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_boring_app/src/news_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:collection';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import 'package:flutter_boring_app/src/article.dart';
 
@@ -126,9 +127,7 @@ class LoadingInfo extends StatelessWidget {
         stream: _isLoading,
         builder: (context, snapshot) {
           if (snapshot.hasData && snapshot.data) {
-            return CircularProgressIndicator(
-              backgroundColor: Colors.white,
-            );
+            return Icon(FontAwesomeIcons.hackerNews);
           } else {
             return Container();
           }
