@@ -45,12 +45,14 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  int _currentIndex = 0;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
-      ),
+          backgroundColor: Colors.cyan,
+          title: Text(widget.title),
+          leading: LoadingInfo(widget.bloc.isLoading)),
       body: StreamBuilder<UnmodifiableListView<Article>>(
         stream: widget.bloc.articles,
         initialData: UnmodifiableListView<Article>([]),
@@ -59,7 +61,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
       ),
       bottomNavigationBar: BottomNavigationBar(
-          currentIndex: 0,
+          currentIndex: _currentIndex,
           items: [
             BottomNavigationBarItem(
                 title: Text('Top Stories'), icon: Icon(Icons.arrow_drop_up)),
@@ -72,6 +74,9 @@ class _MyHomePageState extends State<MyHomePage> {
             } else {
               widget.bloc.storiesType.add(StoriesType.newStories);
             }
+            setState(() {
+              _currentIndex = index;
+            });
           }),
     );
   }
@@ -107,5 +112,26 @@ class _MyHomePageState extends State<MyHomePage> {
       print('Can`t launch');
       //throw 'Could not launch $url';
     }
+  }
+}
+
+class LoadingInfo extends StatelessWidget {
+  final Stream<bool> _isLoading;
+
+  LoadingInfo(this._isLoading);
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder(
+        stream: _isLoading,
+        builder: (context, snapshot) {
+          if (snapshot.hasData && snapshot.data) {
+            return CircularProgressIndicator(
+              backgroundColor: Colors.white,
+            );
+          } else {
+            return Container();
+          }
+        });
   }
 }

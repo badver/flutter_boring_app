@@ -17,6 +17,9 @@ class NewsBloc {
   Sink<StoriesType> get storiesType => _storiesTypeController.sink;
   final _storiesTypeController = StreamController<StoriesType>();
 
+  Stream<bool> get isLoading => _isLoadingSubject.stream;
+  final _isLoadingSubject = BehaviorSubject<bool>(seedValue: false);
+
   NewsBloc() {
     _getArticlesAndUpdate(_topIds);
 
@@ -29,10 +32,13 @@ class NewsBloc {
     });
   }
 
-  _getArticlesAndUpdate(ids) {
-    _updateArticles(ids).then((_) {
-      _articleSubject.add(UnmodifiableListView(_articles));
-    });
+  _getArticlesAndUpdate(ids) async {
+    _isLoadingSubject.add(true);
+    await _updateArticles(ids);
+    await Future.delayed(const Duration(milliseconds: 500));
+
+    _articleSubject.add(UnmodifiableListView(_articles));
+    _isLoadingSubject.add(false);
   }
 
   static List<int> _topIds = [
