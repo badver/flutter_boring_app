@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+import 'src/article.dart';
 
 void main() => runApp(MyApp());
 
@@ -26,13 +29,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
+  List<Article> _articles = articles;
 
   @override
   Widget build(BuildContext context) {
@@ -40,25 +37,51 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.display1,
-            ),
-          ],
-        ),
+      body: RefreshIndicator(
+        onRefresh: () async {
+          await Future.delayed(const Duration(seconds: 1));
+          setState(() {
+            if (_articles.isNotEmpty) _articles.removeAt(0);
+          });
+          return;
+        },
+        child: ListView.builder(
+            itemCount: _articles.length,
+            itemBuilder: (context, index) => _buildItem(_articles[index])),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
+  }
+
+  Widget _buildItem(Article article) {
+    return ExpansionTile(
+      key: Key(article.id.toString()),
+      title: Text(article.title ?? "no title"),
+      children: <Widget>[
+        Wrap(
+          runAlignment: WrapAlignment.spaceAround,
+          alignment: WrapAlignment.spaceAround,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: <Widget>[
+            Text(article.text ?? "no text"),
+            IconButton(
+              icon: Icon(Icons.launch),
+              color: Colors.red,
+              onPressed: () async {
+                await _launchURL(article.url);
+              },
+            )
+          ],
+        )
+      ],
+    );
+  }
+
+  _launchURL(url) async {
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      print('Can`t launch');
+      //throw 'Could not launch $url';
+    }
   }
 }

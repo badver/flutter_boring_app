@@ -24,6 +24,12 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
 
+#  url_launcher: ^4.0.2  // this version has a bug on android, so uncomment when comes 4.0.3
+  url_launcher:
+    git:
+      url: git://github.com/flutter/plugins
+      path: packages/url_launcher
+
 
 # For information on the generic Dart part of this file, see the
 # following page: https://www.dartlang.org/tools/pub/pubspec
