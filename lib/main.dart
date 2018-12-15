@@ -24,7 +24,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.deepOrange,
       ),
       home: MyHomePage(
         title: 'Flutter Boring News App',
@@ -51,9 +51,9 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          backgroundColor: Colors.cyan,
-          title: Text(widget.title),
-          leading: LoadingInfo(widget.bloc.isLoading)),
+        title: Text(widget.title),
+        leading: LoadingInfo(widget.bloc.isLoading),
+      ),
       body: StreamBuilder<UnmodifiableListView<Article>>(
         stream: widget.bloc.articles,
         initialData: UnmodifiableListView<Article>([]),
@@ -116,21 +116,49 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 }
 
-class LoadingInfo extends StatelessWidget {
+class LoadingInfo extends StatefulWidget {
   final Stream<bool> _isLoading;
 
   LoadingInfo(this._isLoading);
 
   @override
+  State<StatefulWidget> createState() => LoadingInfoState();
+}
+
+class LoadingInfoState extends State<LoadingInfo>
+    with TickerProviderStateMixin {
+  AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+        vsync: this, duration: Duration(milliseconds: 2000));
+  }
+
+  @override
   Widget build(BuildContext context) {
     return StreamBuilder(
-        stream: _isLoading,
-        builder: (context, snapshot) {
+        stream: widget._isLoading,
+        builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
           if (snapshot.hasData && snapshot.data) {
-            return Icon(FontAwesomeIcons.hackerNews);
+            _controller.forward();
           } else {
-            return Container();
+            _controller.reverse();
           }
+
+          return FadeTransition(
+            opacity: Tween(begin: 0.0, end: 1.0).animate(
+              CurvedAnimation(
+                parent: _controller,
+                curve: Curves.easeIn,
+              ),
+            ),
+            child: Icon(
+              FontAwesomeIcons.hackerNews,
+              color: Colors.white,
+            ),
+          );
         });
   }
 }
