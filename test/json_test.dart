@@ -1,5 +1,5 @@
 import 'package:flutter_boring_app/src/json_parsing.dart';
-import 'package:test_api/test_api.dart';
+import 'package:test/test.dart';
 
 void main() {
   test("parses topstories.json", () {
