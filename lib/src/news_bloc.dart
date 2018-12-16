@@ -32,6 +32,10 @@ class NewsBloc {
     });
   }
 
+  void close() {
+    _storiesTypeController.close();
+  }
+
   _getArticlesAndUpdate(ids) async {
     _isLoadingSubject.add(true);
     await _updateArticles(ids);
@@ -69,6 +73,12 @@ class NewsBloc {
     if (res.statusCode == 200) {
       return parseArticle(res.body);
     }
-    return null;
+    throw ApiError('Article $id could`t be fetched.');
   }
+}
+
+class ApiError extends Error {
+  final String message;
+
+  ApiError(this.message);
 }
