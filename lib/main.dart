@@ -94,12 +94,10 @@ class _MyHomePageState extends State<MyHomePage> {
       key: Key(article.id.toString()),
       title: Text(article.title ?? "no title"),
       children: <Widget>[
-        Wrap(
-          runAlignment: WrapAlignment.spaceAround,
-          alignment: WrapAlignment.spaceAround,
-          crossAxisAlignment: WrapCrossAlignment.center,
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget>[
-            Text(article.text ?? "no text"),
+            Text('${article.descendants} comments'),
             IconButton(
               icon: Icon(Icons.launch),
               color: Colors.red,
