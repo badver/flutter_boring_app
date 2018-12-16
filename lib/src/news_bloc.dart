@@ -9,6 +9,8 @@ import 'package:rxdart/rxdart.dart';
 enum StoriesType { topStories, newStories }
 
 class NewsBloc {
+  HashMap<int, Article> _cachedArticles;
+
   Stream<UnmodifiableListView<Article>> get articles => _articleSubject.stream;
 
   final _articleSubject = BehaviorSubject<UnmodifiableListView<Article>>();
@@ -21,6 +23,7 @@ class NewsBloc {
   final _isLoadingSubject = BehaviorSubject<bool>(seedValue: false);
 
   NewsBloc() {
+    _cachedArticles = HashMap<int, Article>();
     _initializeArticles();
 
     _storiesTypeController.stream.listen((storiesType) async {
@@ -36,11 +39,9 @@ class NewsBloc {
     _storiesTypeController.close();
   }
 
-  _getArticlesAndUpdate(ids) async {
+  _getArticlesAndUpdate(List<int> ids) async {
     _isLoadingSubject.add(true);
     await _updateArticles(ids);
-    await Future.delayed(const Duration(milliseconds: 500));
-
     _articleSubject.add(UnmodifiableListView(_articles));
     _isLoadingSubject.add(false);
   }
@@ -63,12 +64,16 @@ class NewsBloc {
   static const _baseUrl = 'https://hacker-news.firebaseio.com/v0';
 
   Future<Article> _getArticle(int id) async {
-    final url = '$_baseUrl/item/$id.json';
-    final res = await http.get(url);
-    if (res.statusCode == 200) {
-      return parseArticle(res.body);
+    if (!_cachedArticles.containsKey(id)) {
+      final url = '$_baseUrl/item/$id.json';
+      final res = await http.get(url);
+      if (res.statusCode == 200) {
+        _cachedArticles[id] = parseArticle(res.body);
+      } else {
+        throw ApiError('Article $id could`t be fetched.');
+      }
     }
-    throw ApiError('Article $id could`t be fetched.');
+    return _cachedArticles[id];
   }
 }
 
