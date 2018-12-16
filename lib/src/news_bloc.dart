@@ -21,15 +21,15 @@ class NewsBloc {
   final _isLoadingSubject = BehaviorSubject<bool>(seedValue: false);
 
   NewsBloc() {
-    _getArticlesAndUpdate(_topIds);
+    _initializeArticles();
 
-    _storiesTypeController.stream.listen((storiesType) {
-      if (storiesType == StoriesType.newStories) {
-        _getArticlesAndUpdate(_newIds);
-      } else {
-        _getArticlesAndUpdate(_topIds);
-      }
+    _storiesTypeController.stream.listen((storiesType) async {
+      _getArticlesAndUpdate(await _getIds(storiesType));
     });
+  }
+
+  Future<void> _initializeArticles() async {
+    _getArticlesAndUpdate(await _getIds(StoriesType.topStories));
   }
 
   void close() {
@@ -45,30 +45,25 @@ class NewsBloc {
     _isLoadingSubject.add(false);
   }
 
-  static List<int> _topIds = [
-    18672951,
-    18682580,
-    18678314,
-    18684666,
-    18674188,
-    18665048,
-  ];
-  static List<int> _newIds = [
-    18681772,
-    18667747,
-    18681447,
-    18674885,
-    18667750,
-    18685296
-  ];
+  Future<List<int>> _getIds(StoriesType type) async {
+    final lastPart = type == StoriesType.topStories ? 'top' : 'new';
+    final url = "$_baseUrl/${lastPart}stories.json";
+    final res = await http.get(url);
+    if (res.statusCode != 200) {
+      throw ApiError('Stories $type not fetched');
+    }
+    return parseTopStories(res.body).take(20).toList();
+  }
 
   Future<Null> _updateArticles(List<int> ids) async {
     final futureArticles = ids.map((id) => _getArticle(id));
     _articles = await Future.wait(futureArticles);
   }
 
+  static const _baseUrl = 'https://hacker-news.firebaseio.com/v0';
+
   Future<Article> _getArticle(int id) async {
-    final url = 'https://hacker-news.firebaseio.com/v0/item/$id.json';
+    final url = '$_baseUrl/item/$id.json';
     final res = await http.get(url);
     if (res.statusCode == 200) {
       return parseArticle(res.body);
