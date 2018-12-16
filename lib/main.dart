@@ -145,8 +145,8 @@ class LoadingInfoState extends State<LoadingInfo>
   Widget build(BuildContext context) {
     return StreamBuilder(
         stream: widget._isLoading,
-        builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
-          if (snapshot.hasData && snapshot.data) {
+        builder: (BuildContext context, AsyncSnapshot<bool> loading) {
+          if (loading.hasData && loading.data) {
             _controller.forward();
           } else {
             _controller.reverse();
