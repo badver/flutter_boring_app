@@ -24,8 +24,12 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        primarySwatch: Colors.deepOrange,
-      ),
+          canvasColor: Colors.black,
+          primaryColor: Colors.white,
+          scaffoldBackgroundColor: Colors.white,
+          textTheme: Theme.of(context).textTheme.copyWith(
+              subhead: TextStyle(fontFamily: 'PatuaOne'),
+              caption: TextStyle(color: Colors.white54))),
       home: MyHomePage(
         title: 'Flutter Boring News App',
         bloc: this.bloc,
@@ -58,6 +62,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        elevation: 0.0,
         title: Text(widget.title),
         leading: LoadingInfo(widget.bloc.isLoading),
       ),
@@ -90,24 +95,36 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Widget _buildItem(Article article) {
-    return ExpansionTile(
+    return Padding(
       key: Key(article.id.toString()),
-      title: Text(article.title ?? "no title"),
-      children: <Widget>[
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: <Widget>[
-            Text('${article.descendants} comments'),
-            IconButton(
-              icon: Icon(Icons.launch),
-              color: Colors.red,
-              onPressed: () async {
-                await _launchURL(article.url);
-              },
-            )
-          ],
-        )
-      ],
+      padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 12.0),
+      child: ExpansionTile(
+        title: Text(
+          article.title ?? "no title",
+          style: TextStyle(fontSize: 24.0),
+        ),
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: <Widget>[
+                Text('${article.descendants} comments'),
+                SizedBox(
+                  width: 16.0,
+                ),
+                IconButton(
+                  icon: Icon(Icons.launch),
+                  color: Colors.red,
+                  onPressed: () async {
+                    await _launchURL(article.url);
+                  },
+                )
+              ],
+            ),
+          )
+        ],
+      ),
     );
   }
 
