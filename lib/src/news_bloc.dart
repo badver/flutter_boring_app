@@ -53,7 +53,7 @@ class NewsBloc {
     if (res.statusCode != 200) {
       throw ApiError('Stories $type not fetched');
     }
-    return parseTopStories(res.body).take(20).toList();
+    return parseTopStories(res.body).take(200).toList();
   }
 
   Future<Null> _updateArticles(List<int> ids) async {
