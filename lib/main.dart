@@ -52,6 +52,8 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _currentIndex = 0;
 
+  ScrollController _controller = new ScrollController();
+
   @override
   void dispose() {
     widget.bloc.close();
@@ -62,9 +64,23 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        elevation: 0.0,
+        elevation: 2.0,
         title: Text(widget.title),
         leading: LoadingInfo(widget.bloc.isLoading),
+        actions: <Widget>[
+          Builder(
+              builder: (context) => IconButton(
+                  icon: Icon(Icons.search),
+                  onPressed: () async {
+                    final result = await showSearch(
+                        context: context,
+                        delegate: ArticleSearch(widget.bloc.articles));
+
+                    Scaffold.of(context).showSnackBar(new SnackBar(
+                      content: Text("Selected article: ${result.title}"),
+                    ));
+                  }))
+        ],
       ),
       body: StreamBuilder<UnmodifiableListView<Article>>(
         stream: widget.bloc.articles,
@@ -97,7 +113,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget _buildItem(Article article) {
     return Padding(
       key: Key(article.id.toString()),
-      padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 12.0),
+      padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 8.0),
       child: ExpansionTile(
         title: Text(
           article.title ?? "no title",
@@ -182,5 +198,73 @@ class LoadingInfoState extends State<LoadingInfo>
             ),
           );
         });
+  }
+}
+
+class ArticleSearch extends SearchDelegate<Article> {
+  final Stream<UnmodifiableListView<Article>> articles;
+
+  ArticleSearch(this.articles);
+
+  @override
+  List<Widget> buildActions(BuildContext context) {
+    return [
+      IconButton(
+        icon: Icon(Icons.clear),
+        onPressed: () {
+          query = '';
+        },
+      )
+    ];
+  }
+
+  @override
+  Widget buildLeading(BuildContext context) {
+    return IconButton(
+      icon: Icon(Icons.arrow_back),
+      onPressed: () {
+        close(context, null);
+      },
+    );
+  }
+
+  @override
+  Widget buildResults(BuildContext context) {
+    return Container();
+  }
+
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    return StreamBuilder<UnmodifiableListView<Article>>(
+      stream: articles,
+      builder:
+          (context, AsyncSnapshot<UnmodifiableListView<Article>> snapshot) {
+        if (!snapshot.hasData) {
+          return Center(
+            child: Text('No data'),
+          );
+        }
+
+        final results = snapshot.data
+            .where((a) => a.title.toLowerCase().contains(query.toLowerCase()));
+
+        return ListView(
+          children: results
+              .map<ListTile>((i) => ListTile(
+                    title: Text(i.title),
+                    subtitle: Text(
+                      i.url,
+                      style: TextStyle(color: Colors.black26, fontSize: 12.0),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    leading: Icon(Icons.bookmark),
+                    onTap: () {
+                      close(context, i);
+                    },
+                  ))
+              .toList(),
+        );
+      },
+    );
   }
 }
