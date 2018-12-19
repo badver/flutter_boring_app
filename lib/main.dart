@@ -251,9 +251,9 @@ class ArticleSearch extends SearchDelegate<Article> {
         return ListView(
           children: results
               .map<ListTile>((i) => ListTile(
-                    title: Text(i.title),
+                    title: Text(i.title ?? ""),
                     subtitle: Text(
-                      i.url,
+                      i.url ?? "",
                       style: TextStyle(color: Colors.black26, fontSize: 12.0),
                       overflow: TextOverflow.ellipsis,
                     ),
